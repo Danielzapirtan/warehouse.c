@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Warehouse Database System</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --light: #ecf0f1;
+            --dark: #2c3e50;
+            --border-radius: 4px;
+            --border: 1px solid #ddd;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        .app-container {
+            display: grid;
+            grid-template-areas:
+                "header"
+                "main";
+            grid-template-rows: 60px 1fr;
+            min-height: 100vh;
+        }
+
+        header {
+            grid-area: header;
+            background-color: var(--primary);
+            color: white;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        main {
+            grid-area: main;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: var(--border-radius);
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            padding: 20px;
+            margin-bottom: 20px;
+            border: var(--border);
+        }
+
+        .card-header {
+            border-bottom: var(--border);
+            padding-bottom: 10px;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .tree-view {
+            margin-left: 20px;
+        }
+
+        .tree-item {
+            margin-bottom: 10px;
+            cursor: pointer;
+        }
+
+        .tree-item-header {
+            padding: 8px;
+            background-color: var(--light);
+            border-radius: var(--border-radius);
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .tree-item-header:hover {
+            background-color: #e0e0e0;
+        }
+
+        .tree-item-content {
+            margin-left: 20px;
+            margin-top: 10px;
+            padding-left: 15px;
+            border-left: 2px solid var(--secondary);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: var(--border);
+        }
+
+        th {
+            background-color: var(--light);
+            font-weight: 600;
+        }
+
+        .btn {
+            padding: 8px 12px;
+            border: none;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: 500;
+            margin-right: 5px;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 5px 8px;
+            font-size: 0.8rem;
+        }
+
+        .active {
+            background-color: var(--secondary);
+            color: white;
+        }
+
+        .tab-container {
+            display: flex;
+            border-bottom: var(--border);
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 10px 15px;
+            cursor: pointer;
+            border: var(--border);
+            border-bottom: none;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            margin-right: 5px;
+            background-color: #f9f9f9;
+        }
+
+        .tab.active {
+            background-color: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 8px;
+            border: var(--border);
+            border-radius: var(--border-radius);
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">Warehouse Database</div>
+        </header>
+
+        <main>
+            <div class="card">
+                <div class="card-header">
+                    <h2>Products</h2>
+                    <button class="btn btn-primary" id="add-product-btn">Add Product</button>
+                </div>
+                
+                <div class="tree-view" id="products-tree">
+                    <!-- Product 1 -->
+                    <div class="tree-item">
+                        <div class="tree-item-header" onclick="toggleItem('product-1')">
+                            <span>Product A (units: 100)</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="tree-item-content" id="product-1">
+                            <!-- Sheets for Product 1 -->
+                            <div class="tree-item">
+                                <div class="tree-item-header" onclick="toggleItem('sheet-2023-1')">
+                                    <span>Sheet: January 2023</span>
+                                    <span>▼</span>
+                                </div>
+                                <div class="tree-item-content" id="sheet-2023-1">
+                                    <!-- Pages for Sheet 1 -->
+                                    <div class="tree-item">
+                                        <div class="tree-item-header" onclick="toggleItem('page-1')">
+                                            <span>Page 1 (Unit Price: $10.50)</span>
+                                            <span>▼</span>
+                                        </div>
+                                        <div class="tree-item-content" id="page-1">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>DOM</th>
+                                                        <th>Doc ID</th>
+                                                        <th>Type</th>
+                                                        <th>Initial</th>
+                                                        <th>Entry</th>
+                                                        <th>Exit</th>
+                                                        <th>Final</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>2023-01-05</td>
+                                                        <td>INV-001</td>
+                                                        <td>Invoice</td>
+                                                        <td>50</td>
+                                                        <td>0</td>
+                                                        <td>10</td>
+                                                        <td>40</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>2023-01-12</td>
+                                                        <td>REC-002</td>
+                                                        <td>Receipt</td>
+                                                        <td>40</td>
+                                                        <td>20</td>
+                                                        <td>0</td>
+                                                        <td>60</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Product 2 -->
+                    <div class="tree-item">
+                        <div class="tree-item-header" onclick="toggleItem('product-2')">
+                            <span>Product B (units: 75)</span>
+                            <span>▼</span>
+                        </div>
+                        <div class="tree-item-content hidden" id="product-2">
+                            <!-- Sheets for Product 2 -->
+                            <div class="tree-item">
+                                <div class="tree-item-header" onclick="toggleItem('sheet-2023-2')">
+                                    <span>Sheet: February 2023</span>
+                                    <span>▼</span>
+                                </div>
+                                <div class="tree-item-content hidden" id="sheet-2023-2">
+                                    <!-- Pages for Sheet 2 -->
+                                    <div class="tree-item">
+                                        <div class="tree-item-header" onclick="toggleItem('page-2')">
+                                            <span>Page 1 (Unit Price: $15.75)</span>
+                                            <span>▼</span>
+                                        </div>
+                                        <div class="tree-item-content hidden" id="page-2">
+                                            <table>
+                                                <thead>
+                                                    <tr>
+                                                        <th>DOM</th>
+                                                        <th>Doc ID</th>
+                                                        <th>Type</th>
+                                                        <th>Initial</th>
+                                                        <th>Entry</th>
+                                                        <th>Exit</th>
+                                                        <th>Final</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>2023-02-03</td>
+                                                        <td>INV-003</td>
+                                                        <td>Invoice</td>
+                                                        <td>30</td>
+                                                        <td>0</td>
+                                                        <td>5</td>
+                                                        <td>25</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Detail View Panel -->
+            <div class="card" id="detail-panel">
+                <div class="tab-container">
+                    <div class="tab active" data-tab="info">Information</div>
+                    <div class="tab" data-tab="actions">Actions</div>
+                    <div class="tab" data-tab="history">History</div>
+                </div>
+                
+                <div id="info-tab" class="tab-content">
+                    <h3>Selected Item Details</h3>
+                    <div id="detail-content">
+                        <p>Select an item from the tree to view details</p>
+                    </div>
+                </div>
+                
+                <div id="actions-tab" class="tab-content hidden">
+                    <h3>Available Actions</h3>
+                    <div id="action-content">
+                        <button class="btn btn-primary">Add Sheet</button>
+                        <button class="btn btn-primary">Add Page</button>
+                        <button class="btn btn-primary">Add Record</button>
+                    </div>
+                </div>
+                
+                <div id="history-tab" class="tab-content hidden">
+                    <h3>Change History</h3>
+                    <div id="history-content">
+                        <p>No history available for this item</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Product Modal -->
+            <div class="card hidden" id="add-product-modal">
+                <div class="card-header">
+                    <h2>Add New Product</h2>
+                    <button class="btn btn-primary" id="close-product-modal">×</button>
+                </div>
+                <form id="product-form">
+                    <div class="form-group">
+                        <label for="product-name">Product Name</label>
+                        <input type="text" id="product-name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="product-unit">Unit</label>
+                        <input type="text" id="product-unit" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Product</button>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        // Toggle tree items visibility
+        function toggleItem(id) {
+            const element = document.getElementById(id);
+            element.classList.toggle('hidden');
+            
+            // Toggle arrow icon
+            const header = element.previousElementSibling;
+            const arrow = header.querySelector('span:last-child');
+            arrow.textContent = element.classList.contains('hidden') ? '▶' : '▼';
+        }
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Hide all tab contents
+                document.querySelectorAll('.tab-content').forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show selected tab content
+                const tabId = tab.dataset.tab + '-tab';
+                document.getElementById(tabId).classList.remove('hidden');
+            });
+        });
+
+        // Product modal handling
+        document.getElementById('add-product-btn').addEventListener('click', () => {
+            document.getElementById('add-product-modal').classList.remove('hidden');
+        });
+
+        document.getElementById('close-product-modal').addEventListener('click', () => {
+            document.getElementById('add-product-modal').classList.add('hidden');
+        });
+
+        // Form submission (mock)
+        document.getElementById('product-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Product would be saved here (mock)');
+            document.getElementById('add-product-modal').classList.add('hidden');
+            document.getElementById('product-form').reset();
+        });
+
+        // Mock selection handler
+        document.querySelectorAll('.tree-item-header').forEach(header => {
+            header.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'SPAN') return;
+                
+                // Update detail view
+                const itemName = header.querySelector('span:first-child').textContent;
+                document.getElementById('detail-content').innerHTML = `
+                    <h4>${itemName}</h4>
+                    <p>Detailed information about this item would appear here.</p>
+                    <p>This is a placeholder for the actual data that would come from the backend.</p>
+                `;
+            });
+        });
+
+        // Initialize with first product expanded
+        document.addEventListener('DOMContentLoaded', () => {
+            // Collapse all items except the first product
+            document.querySelectorAll('.tree-item-content').forEach(content => {
+                if (content.id !== 'product-1') {
+                    content.classList.add('hidden');
+                }
+            });
+            
+            // Set arrows correctly
+            document.querySelectorAll('.tree-item-header').forEach(header => {
+                const arrow = header.querySelector('span:last-child');
+                const contentId = header.getAttribute('onclick').match(/'([^']+)'/)[1];
+                const content = document.getElementById(contentId);
+                
+                if (content.classList.contains('hidden')) {
+                    arrow.textContent = '▶';
+                } else {
+                    arrow.textContent = '▼';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
